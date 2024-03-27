@@ -2,18 +2,19 @@ import axios from "axios"
 import { useContext, useState } from "react"
 import  server  from "../main"
 import toast from 'react-hot-toast'
-import { Context } from "../Wrapper"
+import { Context } from "../main"
 import { Navigate } from "react-router-dom"
 function Register() {
     const [name,setName]=useState()
     const [email,setemail]=useState()
     const [password,setPassword]=useState()
     // form will not submit anywhere rather sty at specified route and also prevent to load complete page
-  const {isAuthenticated, setIsauthenticated}=useContext(Context)
+const {isAuthenticated, setIsauthenticated,loading,setLoading}=useContext(Context) 
 
-   const submitHandler = async (e) => {
-try {
-      e.preventDefault(); // Corrected: preventDefault() with capital D
+const submitHandler = async (e) => {
+     try {
+       e.preventDefault(); // Corrected: preventDefault() with capital D
+setLoading(true)// this hook will disable button untill the response will send back becasue that can take time so that is why for prevent unecessary click effects of the button 
     console.log(name,email,password)
     const {data} =  await axios.post(`${server}/users/new`, {
         name,
@@ -25,11 +26,12 @@ try {
         }
     });
   toast.success(data.message) 
-  
+setLoading(false)
 setIsauthenticated(true)
 } catch (error) {
- toast.error(error.Response.data.message)
+alert(error)
   setIsauthenticated(false)
+  setLoading(false)
 } 
 }
   if (isAuthenticated) return <Navigate to={"/login"} />;
@@ -55,7 +57,7 @@ The correct property name for passing credentials in Axios is withCredentials, n
             <input type="text" placeholder="Password" 
              onChange={(e)=>setPassword(e.target.value)}
              required/>
-            <button type="submit">Sign Up</button>
+            <button disabled={loading}type="submit">Sign Up</button>
           
         </form>
      </section>
